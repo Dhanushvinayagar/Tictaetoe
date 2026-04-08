@@ -26,8 +26,22 @@ const players = {};
 const waitingPlayers = new Set();
 const rooms = {};
 
-function checkBoard(board,id) {
-    return true
+function checkBoard(board,symbol) {
+    const winningCombinations = [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
+        [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns
+        [0, 4, 8], [2, 4, 6] // diagonals
+    ]
+
+    const win = winningCombinations.find(combination => {
+        return (
+            board[combination[0]] === board[combination[1]] && 
+            board[combination[1]] === board[combination[2]] && 
+            board[combination[0]] === symbol
+        )
+    })
+
+    return Boolean(win);
 }
 
 // Socket Logic
@@ -105,8 +119,16 @@ io.on("connection", (socket) => {
         const { roomId , board } = data;
         const match = rooms[roomId];
         if (!match) return;
-    
-        checkBoard(board, socket.id);
+        
+        const player = match.player1.socketId === socket.id ? match.player1 : match.player2;
+        const symbol = player.symbol;
+        const winner = checkBoard(board, symbol );
+
+        if (winner) {
+            socket.to(roomId).emit("game_over", { player });
+            io.to(player.socketId).emit("game_over", { player });
+            return;
+        }
         socket.to(roomId).emit("opponent_move", data);
     });
 

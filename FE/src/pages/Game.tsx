@@ -6,6 +6,7 @@ const emptyBoard = Array(9).fill(null);
 export default function Game({ details }: any) {
     const [board, setBoard] = useState(emptyBoard);
     const [turn, setTurn] = useState(false);
+    const [winner, setWinner] = useState(null);
     const mySymbol =
         details.player1.socketId === socket.id ? "X" : "O";
     const opponentSymbol = mySymbol === "X" ? "O" : "X";
@@ -51,20 +52,25 @@ export default function Game({ details }: any) {
         socket.on("opponent_move", handleMove);
         socket.on("opponent_left", handleLeave);
 
+        socket.on("game_over", (data) => {
+            setWinner(data.player.name);
+        })
+
         return () => {
             socket.off("opponent_move", handleMove);
             socket.off("opponent_left", handleLeave);
         };
     }, []);
 
-    console.log(board);
-    
-
     return (
         <div>
             <h2>Tic Tac Toe</h2>
-
-            <p>{turn ? "Your turn" : "Opponent's turn"}</p>
+            <p>You are playing as : {mySymbol}</p>
+            {
+                winner ?
+                <p>{winner} won the game</p> :
+                <p>{turn ? "Your turn" : "Opponent's turn"}</p>
+            }
 
             <p>
                 {details["player1"]["name"]} - {details["player1"]["symbol"]}
