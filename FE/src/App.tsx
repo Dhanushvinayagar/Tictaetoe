@@ -1,30 +1,22 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react';
 import './App.css'
-import { io } from "socket.io-client";
+import Leaderboard from './pages/Leaderboard';
+import Game from './pages/Game';
+import Nickname from './pages/Nickname';
+import Matcher from './pages/Matcher';
+
 
 function App() {
 
-  const [socketId, setSocketId] = useState<string|undefined>("");
-
-  useEffect(() => {
-    const socket = io("http://localhost:8000"); // 👈 use http, not ws
-
-    socket.on("connect", () => {
-      console.log(socket.id);
-      setSocketId(socket.id); // 👈 update state
-    });
-
-    return () => {
-      socket.disconnect(); // 👈 cleanup
-    };
-  }, []);
-
-  return (
-    <>
-      <h1>Socket.IO Client</h1>
-      <p>Socket ID: {socketId}</p>
-    </>
-  )
+    const [step, setStep] = useState(1);
+    const [name, setName] = useState("");
+    const [match, setMatch] = useState<any>(null);
+  
+    if (step === 1) return <Nickname name={name} setName={setName} onNext={(_:any) => setStep(2)} />;
+    if (step === 2) return <Matcher name={name} onMatch={(m:any)=>{setStep(3); setMatch(m);}} />;
+    if (step === 3) return <Game details={match} />;
+  
+    return <Leaderboard />;
 
 }
 
