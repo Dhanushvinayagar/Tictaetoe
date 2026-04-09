@@ -27,3 +27,18 @@ Client -> (HTTP) -> Server
 
 WebSockets:
 Client 1 -> (WebSocket) -> Server -> WebSocket -> Client 2
+
+Deployment:
+It was deployed on Render.
+BE was deployed on Render Web service.
+FE was deployed on Static site.
+Render was linked to my git repository.
+It picks code from git hub and start up build commands was given.
+
+BE:
+1. npm install
+2. npm start
+
+FE:
+1. npm install
+2. npm run dev
